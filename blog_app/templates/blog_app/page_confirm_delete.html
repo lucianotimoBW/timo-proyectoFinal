@@ -1,0 +1,13 @@
+{% extends "blog_app/base.html" %}
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <h2>Delete Page</h2>
+        <p>Are you sure you want to delete "{{ page.title }}"?</p>
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Delete</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

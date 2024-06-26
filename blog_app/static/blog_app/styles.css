@@ -1,0 +1,36 @@
+/* Custom styles for your blog */
+body {
+    padding-top: 56px;
+}
+
+.navbar {
+    background-color: #f8f9fa;
+}
+
+.card {
+    margin-bottom: 30px;
+}
+
+.card-img-container {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    border-top-left-radius: calc(.25rem - 1px);
+    border-top-right-radius: calc(.25rem - 1px);
+}
+
+.card-img-top {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover;
+}
+
+.card-title {
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+}
+
+.card-text {
+    margin-bottom: 1rem;
+}
