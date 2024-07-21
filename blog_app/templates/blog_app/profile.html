@@ -7,6 +7,9 @@
         <p>Email: {{ user.email }}</p>
         <p>First Name: {{ user.first_name }}</p>
         <p>Last Name: {{ user.last_name }}</p>
+        {% if user.userprofile.avatar %}
+            <img src="{{ user.userprofile.avatar.url }}" alt="Avatar" class="img-thumbnail" style="max-width: 150px;">
+        {% endif %}
         <a href="{% url 'update_profile' %}" class="btn btn-info">Update Profile</a>
         <a href="{% url 'change_password' %}" class="btn btn-warning">Change Password</a>
     </div>

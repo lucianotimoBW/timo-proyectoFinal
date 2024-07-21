@@ -1,8 +1,13 @@
-from . import views
-from django.urls import path
+from . import views, admin
+from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.auth.views import LogoutView
+
+
+from django.contrib import admin
+from django.urls import path
+from . import views
 
 urlpatterns = [
     path('', views.home, name='home'),
@@ -26,4 +31,8 @@ urlpatterns = [
     path('messages/', views.message_list, name='message_list'),
     path('messages/<int:pk>/', views.message_detail, name='message_detail'),
     path('messages/new/', views.message_send, name='message_send'),
+    path('admin/', admin.site.urls),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

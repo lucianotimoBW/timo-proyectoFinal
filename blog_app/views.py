@@ -1,6 +1,3 @@
-from .models import Blog, Page, Message
-from .forms import BlogForm, ChangePasswordForm, CustomUserCreationForm, PageForm, MessageForm, UserProfileForm
-
 from django.urls import reverse_lazy
 from django.contrib.auth import login, logout, update_session_auth_hash
 from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm
@@ -8,13 +5,9 @@ from django.contrib.auth.views import LoginView, LogoutView
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
-from django.shortcuts import redirect
 
-from django.contrib.auth.forms import PasswordChangeForm
-from django.contrib.auth import update_session_auth_hash
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect
-from .forms import UserProfileForm, ChangePasswordForm
+from .models import Blog, Page, Message
+from .forms import BlogForm, ChangePasswordForm, CustomUserCreationForm, PageForm, MessageForm, UserProfileForm
 
 def blog_list(request):
     blogs = Blog.objects.all()
@@ -77,14 +70,15 @@ class CustomLogoutView(LogoutView):
 
 def signup(request):
     if request.method == 'POST':
-        form = CustomUserCreationForm(request.POST)
+        form = CustomUserCreationForm(request.POST, request.FILES)
         if form.is_valid():
-            user = form.save()
+            user = form.save(commit=True)  # Commit user creation
             login(request, user)
             return redirect('profile')  # Redirect to the profile page after signup
     else:
         form = CustomUserCreationForm()
     return render(request, 'blog_app/signup.html', {'form': form})
+
 
 @login_required
 def profile(request):
@@ -93,27 +87,26 @@ def profile(request):
 @login_required
 def update_profile(request):
     if request.method == 'POST':
-        user_form = UserProfileForm(request.POST, instance=request.user)
+        user_form = UserProfileForm(request.POST, request.FILES, instance=request.user.userprofile)
         if user_form.is_valid():
             user_form.save()
             return redirect('profile')
     else:
-        user_form = UserProfileForm(instance=request.user)
+        user_form = UserProfileForm(instance=request.user.userprofile)
     return render(request, 'blog_app/edit_profile.html', {'user_form': user_form})
 
 @login_required
 def change_password(request):
     if request.method == 'POST':
-        password_form = ChangePasswordForm(user=request.user, data=request.POST)
+        password_form = PasswordChangeForm(user=request.user, data=request.POST)
         if password_form.is_valid():
             user = password_form.save()
             update_session_auth_hash(request, user)  # Important to keep the user logged in after password change
             return redirect('profile')
     else:
-        password_form = ChangePasswordForm(user=request.user)
+        password_form = PasswordChangeForm(user=request.user)
     
     return render(request, 'blog_app/change_password.html', {'password_form': password_form})
-
 
 
 # List all pages
