@@ -1,18 +1,20 @@
 from .models import Blog, Page, Message
-from .forms import BlogForm, CustomUserCreationForm, PageForm, MessageForm
+from .forms import BlogForm, ChangePasswordForm, CustomUserCreationForm, PageForm, MessageForm, UserProfileForm
 
 from django.urls import reverse_lazy
-
-from django.contrib.auth import login, logout
-from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth import login, logout, update_session_auth_hash
+from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm
 from django.contrib.auth.views import LoginView, LogoutView
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
-
 from django.shortcuts import render, get_object_or_404, redirect
 from django.shortcuts import redirect
 
-
+from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect
+from .forms import UserProfileForm, ChangePasswordForm
 
 def blog_list(request):
     blogs = Blog.objects.all()
@@ -55,7 +57,6 @@ def blog_delete(request, pk):
         return redirect('blog_list')
     return render(request, 'blog_app/blog_confirm_delete.html', {'blog': blog})
 
-
 def home(request):
     blogs = Blog.objects.all()
     return render(request, 'blog_app/home.html', {'blogs': blogs})
@@ -63,18 +64,14 @@ def home(request):
 def about(request):
     return render(request, 'blog_app/about.html')
 
-
 def custom_logout(request):
     logout(request)
     return redirect('home')
 
-
-# Use Django's built-in LoginView
 class CustomLoginView(LoginView):
     template_name = 'blog_app/login.html'
     redirect_authenticated_user = True
 
-# Use Django's built-in LogoutView
 class CustomLogoutView(LogoutView):
     next_page = reverse_lazy('home')
 
@@ -89,8 +86,6 @@ def signup(request):
         form = CustomUserCreationForm()
     return render(request, 'blog_app/signup.html', {'form': form})
 
-
-
 @login_required
 def profile(request):
     return render(request, 'blog_app/profile.html', {'user': request.user})
@@ -98,13 +93,26 @@ def profile(request):
 @login_required
 def update_profile(request):
     if request.method == 'POST':
-        user = request.user
-        user.username = request.POST['username']
-        user.email = request.POST['email']
-        user.save()
-        return redirect('profile')
-    return render(request, 'blog_app/update_profile.html')
+        user_form = UserProfileForm(request.POST, instance=request.user)
+        if user_form.is_valid():
+            user_form.save()
+            return redirect('profile')
+    else:
+        user_form = UserProfileForm(instance=request.user)
+    return render(request, 'blog_app/edit_profile.html', {'user_form': user_form})
 
+@login_required
+def change_password(request):
+    if request.method == 'POST':
+        password_form = ChangePasswordForm(user=request.user, data=request.POST)
+        if password_form.is_valid():
+            user = password_form.save()
+            update_session_auth_hash(request, user)  # Important to keep the user logged in after password change
+            return redirect('profile')
+    else:
+        password_form = ChangePasswordForm(user=request.user)
+    
+    return render(request, 'blog_app/change_password.html', {'password_form': password_form})
 
 
 
@@ -153,8 +161,6 @@ def page_delete(request, pk):
         page.delete()
         return redirect('page_list')
     return render(request, 'blog_app/page_confirm_delete.html', {'page': page})
-
-
 
 # List received messages
 @login_required

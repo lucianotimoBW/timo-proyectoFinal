@@ -4,7 +4,6 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.auth.views import LogoutView
 
-
 urlpatterns = [
     path('', views.home, name='home'),
     path('about/', views.about, name='about'),
@@ -18,6 +17,7 @@ urlpatterns = [
     path('signup/', views.signup, name='signup'),
     path('accounts/profile/', views.profile, name='profile'), 
     path('profile/update/', views.update_profile, name='update_profile'),
+    path('profile/change_password/', views.change_password, name='change_password'),
     path('pages/', views.page_list, name='page_list'),
     path('pages/<int:pk>/', views.page_detail, name='page_detail'),
     path('pages/new/', views.page_create, name='page_create'),
@@ -27,4 +27,3 @@ urlpatterns = [
     path('messages/<int:pk>/', views.message_detail, name='message_detail'),
     path('messages/new/', views.message_send, name='message_send'),
 ]
-
